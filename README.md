@@ -1,7 +1,3 @@
-¡Claro! Aquí tienes el README actualizado:
-
----
-
 # 🎮 Tetris Game
 
 Bienvenido a mi proyecto de Tetris! Este es un clásico juego de Tetris implementado con HTML5, CSS3 y JavaScript. 🧩
@@ -67,5 +63,3 @@ Bienvenido a mi proyecto de Tetris! Este es un clásico juego de Tetris implemen
 ¡Gracias por visitar mi proyecto de Tetris! Espero que disfrutes jugando tanto como yo disfruté desarrollándolo. 🎉
 
 ---
-
-Si necesitas ajustar algún detalle o agregar algo más específico, por favor avísame.

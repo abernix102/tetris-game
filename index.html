@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Concert+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <main class="hero">
+      <section class="box-controlls">
+        <div>
+          <h2>controls:</h2>
+        <figure>
+          <img class="imagen-keys" src="/assets/noun-arrow-keys-302301.png">
+        </figure>
+        <h2>Left and Right:</h2>
+        <p>
+          move side to side
+        </p>
+        <h2>up:</h2>
+        <p>
+          rotate
+        </p>
+        <h2>down:</h2>
+        <p>fall faster</p>
+        </div>
+      </section>
+        </section>
+        <canvas  id="main"></canvas>
+        <section class="box-pointer">
+          <div>
+            <h2 class="concert-one nes-container is-centered  custom-container" id="score">score: <br>
+            0</h2>
+          </div>
+         <div class="points">
+          <h2 class="concert-one nes-container is-centered custom-container" id="level">level: 1</h2>
+          <h2 class="concert-one nes-container is-centered custom-container" id="lines">lines: 0</h2>
+         </div>
+        <div>
+          <canvas class="nes-container is-centeredcustom-container" id="next"></canvas>
+        </div>
+        </section>
+    </main>
+    <script type="module" src="/counter.js"></script>
+  </body>
+</html>

@@ -59,7 +59,7 @@ export class Board {
   }
 
   update() {
-    // Esta función queda disponible para lógica extra si la necesitas
+    // Esta función queda disponible para lógica extra 
   }
 
   draw() {
@@ -171,7 +171,6 @@ export class Board {
   }
 
   clearFullRows() {
-    // Modificado para que detecte colores (strings) en lugar de solo el número 1
     const linesToClear = this.grid.reduce((count, row) => {
       return row.every((cell) => cell !== 0) ? count + 1 : count;
     }, 0);

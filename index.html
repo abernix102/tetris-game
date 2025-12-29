@@ -1,55 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Concert+One&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./node_modules/nes.css/css/nes.min.css">
-    <link rel="stylesheet" href="./style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-  </head>
-  <body>
+    <title>Retro Tetris JS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/nes.css/css/nes.min.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
     <main class="hero">
-      <section class="box-controlls">
-        <div>
-          <h2>controls:</h2>
-        <figure>
-          <img class="imagen-keys" src="/assets/noun-arrow-keys-302301.png">
-        </figure>
-        <h2>Left and Right:</h2>
-        <p>
-          move side to side
-        </p>
-        <h2>up:</h2>
-        <p>
-          rotate
-        </p>
-        <h2>down:</h2>
-        <p>fall faster</p>
-        </div>
-      </section>
+        <section class="box-controlls">
+            <div>
+                <h2>Controls</h2>
+                <figure>
+                    <img class="imagen-keys" src="./assets/noun-arrow-keys-302301.png" alt="Arrows">
+                </figure>
+                <h2>Movement</h2>
+                <p>Use Left & Right keys to slide.</p>
+                <h2>Rotate</h2>
+                <p>Up key to flip piece.</p>
+                <h2>Soft Drop</h2>
+                <p>Down key to fall faster.</p>
+            </div>
         </section>
-        <canvas  id="main"></canvas>
+
+        <canvas id="main"></canvas>
+
         <section class="box-pointer">
-          <div>
-            <h2 class="concert-one nes-container is-centered  custom-container" id="score">score: <br>
-            0</h2>
-          </div>
-         <div class="points">
-          <h2 class="concert-one nes-container is-centered custom-container" id="level">level: 1</h2>
-          <h2 class="concert-one nes-container is-centered custom-container" id="lines">lines: 0</h2>
-         </div>
-        <div>
-          <canvas class="nes-container is-centeredcustom-container" id="next"></canvas>
-        </div>
+            <div>
+                <h2>Data</h2>
+                <div class="nes-container is-dark custom-container" id="score">
+                    SCORE<br>000000
+                </div>
+            </div>
+
+            <div class="points">
+                <div class="nes-container is-dark custom-container" id="level">
+                    LEVEL: 1
+                </div>
+                <div class="nes-container is-dark custom-container" id="lines">
+                    LINES: 0
+                </div>
+            </div>
+
+            <div>
+                <h2>Next Piece</h2>
+                <canvas id="next"></canvas>
+            </div>
         </section>
     </main>
+
     <script type="module" src="/counter.js"></script>
-  </body>
+</body>
 </html>

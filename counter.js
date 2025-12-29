@@ -6,17 +6,19 @@ import {
   randomColor
 } from "./shapesF.js";
 
-
 const mainCanvas = document.querySelector("#main");
 const nextCanvas = document.querySelector("#next");
 const mainCTX = mainCanvas.getContext("2d");
 const nextCTX = nextCanvas.getContext("2d");
 
-
 export class Board {
   constructor(ctx, nextCtx) {
     this.ctx = ctx;
     this.nextCtx = nextCtx;
+    // Variables de control de tiempo
+    this.dropCounter = 0;
+    this.dropInterval = 1000; // Caen cada 1 segundo
+    this.lastTime = 0;
     this.init();
   }
 
@@ -35,199 +37,208 @@ export class Board {
     this.pointsToLevelUp = 1000;
     this.next = randomTetrominos();
     this.tetrominos = randomTetrominos();
-    this.color = randomColor()
+    this.color = randomColor(); // Color de la pieza actual
     this.draw();
   }
 
-  startAnimation() {
-    const animate = () => {
-      this.update();
-      this.draw();
-      requestAnimationFrame(animate); 
-    };
-    requestAnimationFrame(animate);
-  }
-  update() {
-    this.ty++;
+  startAnimation(time = 0) {
+    // Calculamos el tiempo transcurrido
+    const deltaTime = time - this.lastTime;
+    this.lastTime = time;
+
+    this.dropCounter += deltaTime;
+
+    // Si pasó el intervalo, movemos hacia abajo automáticamente
+    if (this.dropCounter > this.dropInterval) {
+      this.moveTetromino("down");
+      this.dropCounter = 0;
+    }
+
+    this.draw();
+    requestAnimationFrame((t) => this.startAnimation(t));
   }
 
-   draw() {
+  update() {
+    // Esta función queda disponible para lógica extra si la necesitas
+  }
+
+  draw() {
     this.clearCanvas();
     this.drawBoard();
-    this.drawNext()
+    this.drawNext();
   }
+
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
-  drawNext (){
-    const scale_factor = 2
-    this.nextCtx.save(); 
+
+  drawNext() {
+    const scale_factor = 2;
+    this.nextCtx.save();
     this.nextCtx.clearRect(0, 0, this.nextCtx.canvas.width, this.nextCtx.canvas.height);
     this.nextCtx.scale(BLOCK_SIZE * scale_factor, BLOCK_SIZE * scale_factor);
-    this.next.forEach((row, y)=> {
+    this.next.forEach((row, y) => {
       row.forEach((num, x) => {
-        if(num > 0){
+        if (num > 0) {
           this.nextCtx.fillStyle = "#071126";
-          this.nextCtx.fillRect(x, y,1,1)
+          this.nextCtx.fillRect(x, y, 1, 1);
         }
-      })
-    })
+      });
+    });
     this.nextCtx.restore();
   }
+
   drawBoard() {
     this.grid.forEach((row, y) => {
-      row.forEach((num, x) => {
-        this.ctx.strokeStyle = "#26";
-        this.ctx.strokeRect(
-          x * BLOCK_SIZE,
-          y * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
-        );
-        if (num > 0) {
-          this.ctx.fillStyle = "red";
-          this.ctx.fillRect(
-            x * BLOCK_SIZE,
-            y * BLOCK_SIZE,
-            BLOCK_SIZE,
-            BLOCK_SIZE
-          );
-        } 
+      row.forEach((value, x) => {
+        this.ctx.strokeStyle = "#262626";
+        this.ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        if (value !== 0) {
+          this.ctx.fillStyle = value; // El valor ahora es el color string
+          this.ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
       });
     });
 
     this.tetrominos.forEach((row, y) => {
       row.forEach((num, x) => {
         if (num) {
-          this.ctx.fillStyle = "red";
+          this.ctx.fillStyle = this.color;
           this.ctx.fillRect((this.tx + x) * BLOCK_SIZE, (this.ty + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         }
       });
     });
   }
-  collision(){
-    return this.tetrominos.find((row, y) => {
-      return row.find((num, x) => {
-        return (num !== 0 && this.grid[y + this.ty]?.[x + this.tx] !== 0)
+
+  collision() {
+    return this.tetrominos.some((row, y) => {
+      return row.some((num, x) => {
+        return (
+          num !== 0 &&
+          (this.grid[y + this.ty] === undefined || 
+           this.grid[y + this.ty][x + this.tx] === undefined ||
+           this.grid[y + this.ty][x + this.tx] !== 0)
+        );
       });
     });
   }
-  fixCollision(){
+
+  fixCollision() {
     this.tetrominos.forEach((row, y) => {
       row.forEach((num, x) => {
-        if(num){
-          this.grid[y + this.ty][x + this.tx] = num;
-          this.ctx.fillStyle = "red";
-          this.ctx.fillRect((this.tx + x) * BLOCK_SIZE, (this.ty + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        if (num) {
+          // Guardamos el color actual en la rejilla en lugar de un número
+          this.grid[y + this.ty][x + this.tx] = this.color;
         }
       });
     });
   }
-  spawnTetromino(){
+
+  spawnTetromino() {
     this.ty = 0;
     this.tx = 4;
     this.tetrominos = this.next;
+    this.color = randomColor(); // Nueva pieza, nuevo color
     this.next = randomTetrominos();
     if (this.collision()) {
-      // Game over condition
       alert("Game Over!");
       this.init();
     }
   }
-  checkLevelUp(){
-    if(this.score >= this.level * this.pointsToLevelUp){
-      this.level++
-      this.updatePointes()
+
+  checkLevelUp() {
+    if (this.score >= this.level * this.pointsToLevelUp) {
+      this.level++;
+      // Aumentamos la velocidad conforme sube de nivel
+      this.dropInterval = Math.max(100, 1000 - (this.level * 100));
+      this.updatePointes();
     }
   }
-  updatePointes(){
-    document.getElementById("lines").textContent = `lines: ${this.lines}`
+
+  updatePointes() {
+    document.getElementById("lines").textContent = `lines: ${this.lines}`;
     document.getElementById("score").innerHTML = `Score:<br>${this.score}`;
-    document.getElementById("level").textContent = `level: ${this.level}`
+    document.getElementById("level").textContent = `level: ${this.level}`;
   }
-  addScore(lineasCleared){
-    if(lineasCleared > 0){
-      this.score = this.score + this.pointsPerLine[lineasCleared - 1]
-      this.lines+=lineasCleared
-      this.checkLevelUp()
-      this.updatePointes()
+
+  addScore(lineasCleared) {
+    if (lineasCleared > 0) {
+      this.score = this.score + this.pointsPerLine[lineasCleared - 1];
+      this.lines += lineasCleared;
+      this.checkLevelUp();
+      this.updatePointes();
     }
   }
-  clearFullRows(){
-    const nwt = this.grid.reduce((count, row) => {
-      return row.every((num) =>  num === 1) ? count + 1 : count;
-    }, 0)
-    if(nwt > 0){
-      this.addScore(nwt)
-      const newGrid = this.grid.filter(row => row.some(num => num === 0));
+
+  clearFullRows() {
+    // Modificado para que detecte colores (strings) en lugar de solo el número 1
+    const linesToClear = this.grid.reduce((count, row) => {
+      return row.every((cell) => cell !== 0) ? count + 1 : count;
+    }, 0);
+
+    if (linesToClear > 0) {
+      this.addScore(linesToClear);
+      const newGrid = this.grid.filter(row => row.some(cell => cell === 0));
       const numRowsToAdd = BOARD_HEIGHT - newGrid.length;
       const emptyRows = Array.from({ length: numRowsToAdd }, () => Array(BOARD_WIDTH).fill(0));
       this.grid = emptyRows.concat(newGrid);
     }
   }
-  rotateTetramino(){
-    const newRotate = []
-    const rows = this.tetrominos.length
-    const cols = this.tetrominos[0].length
-    for(let col = 0; col < cols; col++){
-      newRotate[col] = []
-      for(let row = rows - 1; row >= 0; row--){
-        newRotate[col][rows - 1 - row] = this.tetrominos[row][col]
+
+  rotateTetramino() {
+    const newRotate = [];
+    const rows = this.tetrominos.length;
+    const cols = this.tetrominos[0].length;
+    for (let col = 0; col < cols; col++) {
+      newRotate[col] = [];
+      for (let row = rows - 1; row >= 0; row--) {
+        newRotate[col][rows - 1 - row] = this.tetrominos[row][col];
       }
     }
-    this.tetrominos = newRotate
-
+    this.tetrominos = newRotate;
   }
+
   moveTetromino(direction) {
     const oldTetrominos = this.tetrominos;
-    if(direction === "down"){
+    if (direction === "down") {
       this.ty++;
-    if(this.collision()){
-      this.ty--
-      this.fixCollision()
-      this.spawnTetromino();
-      this.clearFullRows()
+      if (this.collision()) {
+        this.ty--;
+        this.fixCollision();
+        this.clearFullRows();
+        this.spawnTetromino();
+      }
     }
-   }
-   if(direction === "left"){
-    this.tx--;
-    if(this.collision()){
-      this.tx++
+    if (direction === "left") {
+      this.tx--;
+      if (this.collision()) this.tx++;
     }
-   }
-   if(direction === "right"){
-    this.tx++;
-    if(this.collision()){
-      this.tx--
+    if (direction === "right") {
+      this.tx++;
+      if (this.collision()) this.tx--;
     }
-   }
-   if(direction === "up"){
-    this.rotateTetramino()
-    if(this.collision()){
-      this.tx--
-      this.tetrominos = oldTetrominos
+    if (direction === "up") {
+      this.rotateTetramino();
+      if (this.collision()) {
+        this.tetrominos = oldTetrominos;
+      }
     }
-   }
-   this.draw()
+    this.draw();
   }
 }
 
 const board = new Board(mainCTX, nextCTX);
-// console.log(board);
+// Arrancamos la animación pasando el tiempo inicial
+board.startAnimation();
 
 document.addEventListener("keydown", event => {
   switch (event.key) {
-    case "ArrowLeft":
-      board.moveTetromino("left");
-      break;
-    case "ArrowRight":
-      board.moveTetromino("right");
-      break;
-    case "ArrowDown":
+    case "ArrowLeft": board.moveTetromino("left"); break;
+    case "ArrowRight": board.moveTetromino("right"); break;
+    case "ArrowDown": 
       board.moveTetromino("down");
+      board.dropCounter = 0; // Reiniciamos el contador al bajar manual
       break;
-    case "ArrowUp":
-      board.moveTetromino("up");
-      break;
+    case "ArrowUp": board.moveTetromino("up"); break;
   }
 });
